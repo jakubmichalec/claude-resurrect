@@ -8,7 +8,7 @@
   "author": "Jakub Michalec <kuba.michalec@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jakubmichalec/claude-resurrect.git",
+    "url": "git+https://github.com/jakubmichalec/claude-resurrect.git",
     "directory": "packages/vscode"
   },
   "bugs": {
