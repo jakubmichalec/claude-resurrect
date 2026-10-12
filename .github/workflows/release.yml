@@ -43,6 +43,9 @@ jobs:
           node-version: 20
           cache: npm
 
+      # The Zed snippet is syntax-checked with every shell it targets
+      - run: sudo apt-get install -y zsh
+
       - run: npm ci
 
       # Full quality gate before publishing
@@ -87,6 +90,9 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
           cache: npm
+
+      # The Zed snippet is syntax-checked with every shell it targets
+      - run: sudo apt-get install -y zsh
 
       - run: npm ci
 

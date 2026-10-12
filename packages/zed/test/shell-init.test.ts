@@ -9,7 +9,13 @@ import { resurrectTask } from '../src/zed-task';
 const isValidIn = (shell: string, script: string): boolean => {
   const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'resurrect-sh-')), 'snippet.sh');
   fs.writeFileSync(file, script);
-  return spawnSync(shell, ['-n', file]).status === 0;
+  const result = spawnSync(shell, ['-n', file]);
+  if (result.error !== undefined) {
+    throw new Error(
+      `${shell} is not installed, so the snippet cannot be checked: ${result.error.message}`,
+    );
+  }
+  return result.status === 0;
 };
 
 describe('shellSnippet', () => {
