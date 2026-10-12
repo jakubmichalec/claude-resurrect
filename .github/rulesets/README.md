@@ -1,7 +1,9 @@
 # Repository rulesets
 
-Source of truth for the GitHub rulesets protecting this repository. Apply or
-update them with the GitHub CLI (replace `<owner>/<repo>`):
+Source of truth for the GitHub rulesets protecting this repository.
+`scripts/github-repo-settings.sh` creates or updates them, together with the
+other repository settings listed below, and is safe to re-run. By hand, with
+the GitHub CLI (replace `<owner>/<repo>`):
 
 ```bash
 gh api -X POST repos/<owner>/<repo>/rulesets --input .github/rulesets/main-branch.json
@@ -37,8 +39,9 @@ To update an existing ruleset, find its id with
   write (release-please labels the Release PR through the issues endpoint),
   and rotate it on a schedule.
 
-## Also enable in Settings > Code security
+## Also enabled by the script
 
 Secret scanning with push protection, Dependabot alerts and security updates,
-and CodeQL default setup. `.github/dependabot.yml` keeps npm dependencies and
-action versions current.
+private vulnerability reporting, CodeQL default setup, squash or rebase merges
+only, and actions limited to GitHub-owned and verified creators.
+`.github/dependabot.yml` keeps npm dependencies and action versions current.

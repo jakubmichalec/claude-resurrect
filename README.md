@@ -130,7 +130,7 @@ One-time setup for a fork or a new maintainer:
 
 1. Create the publisher on both registries: `jakubmichalec` on the [Visual Studio Marketplace](https://marketplace.visualstudio.com/manage) and the same namespace on [Open VSX](https://open-vsx.org/) with `npx ovsx create-namespace jakubmichalec -p <token>`.
 2. Add the repository secrets `VSCE_PAT` (Azure DevOps token with Marketplace publish scope), `OVSX_TOKEN` (Open VSX access token), `NPM_TOKEN` (npm automation token for `claude-resurrect-zed`) and `GH_PAT` (fine-grained token for the Release PR, see `.github/rulesets/README.md`).
-3. Apply the rulesets from `.github/rulesets/` and enable the security features listed there.
+3. Run `bash scripts/github-repo-settings.sh` to apply the rulesets from `.github/rulesets/` and the security settings listed there.
 
 ## Contributing
 
