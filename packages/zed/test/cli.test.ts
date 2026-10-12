@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { spawnSync, type SpawnSyncOptionsWithStringEncoding } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -27,19 +27,27 @@ const sandbox = (): Sandbox => {
   };
 };
 
+// Detached, so the CLI has no controlling terminal: commands that would ask
+// on /dev/tty fail fast instead of waiting for the developer running the tests.
+// spawnSync honours `detached` like spawn does, the typings just omit it.
+const runOptions = (
+  box: Sandbox,
+): SpawnSyncOptionsWithStringEncoding & { readonly detached: boolean } => ({
+  encoding: 'utf8',
+  cwd: box.project,
+  detached: true,
+  env: {
+    ...process.env,
+    CLAUDE_RESURRECT_DIR: box.stateDirectory,
+    CLAUDE_CONFIG_DIR: box.configDirectory,
+    XDG_CONFIG_HOME: path.join(box.root, 'xdg'),
+    HOME: box.root,
+    SHELL: '/bin/zsh',
+  },
+});
+
 const run = (box: Sandbox, ...args: string[]) =>
-  spawnSync(process.execPath, [CLI, ...args], {
-    encoding: 'utf8',
-    cwd: box.project,
-    env: {
-      ...process.env,
-      CLAUDE_RESURRECT_DIR: box.stateDirectory,
-      CLAUDE_CONFIG_DIR: box.configDirectory,
-      XDG_CONFIG_HOME: path.join(box.root, 'xdg'),
-      HOME: box.root,
-      SHELL: '/bin/zsh',
-    },
-  });
+  spawnSync(process.execPath, [CLI, ...args], runOptions(box));
 
 const SECOND_SESSION_ID = '4b6ee0a0-1111-4111-8111-111111111111';
 
