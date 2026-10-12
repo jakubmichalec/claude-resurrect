@@ -1,0 +1,138 @@
+{
+  "name": "claude-resurrect",
+  "displayName": "Claude Resurrect",
+  "description": "Bring back the Claude Code CLI sessions that were open in your editor terminals before a restart.",
+  "version": "0.0.1",
+  "publisher": "jakubmichalec",
+  "license": "MIT",
+  "author": "Jakub Michalec <kuba.michalec@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jakubmichalec/claude-resurrect.git",
+    "directory": "packages/vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/jakubmichalec/claude-resurrect/issues"
+  },
+  "homepage": "https://github.com/jakubmichalec/claude-resurrect#readme",
+  "icon": "assets/icon.png",
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "claude",
+    "claude code",
+    "terminal",
+    "session",
+    "restore",
+    "cursor"
+  ],
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "claudeResurrect.restore",
+        "title": "Restore Sessions",
+        "category": "Claude Resurrect"
+      },
+      {
+        "command": "claudeResurrect.installHooks",
+        "title": "Install Claude Code Hooks",
+        "category": "Claude Resurrect"
+      }
+    ],
+    "configuration": {
+      "title": "Claude Resurrect",
+      "properties": {
+        "claudeResurrect.restoreOnStartup": {
+          "type": "string",
+          "enum": [
+            "ask",
+            "always",
+            "never"
+          ],
+          "default": "ask",
+          "enumDescriptions": [
+            "Show a list of interrupted sessions for this window and restore the ticked ones.",
+            "Restore every interrupted session for this window without asking.",
+            "Do nothing on startup. The Restore Sessions command still works."
+          ],
+          "description": "What to do with interrupted Claude Code sessions when a window opens."
+        },
+        "claudeResurrect.claudeCommand": {
+          "type": "string",
+          "default": "claude",
+          "description": "Command used to launch Claude Code in the restored terminal."
+        },
+        "claudeResurrect.extraArguments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Extra arguments appended after the resume flag, for example a permission mode."
+        },
+        "claudeResurrect.shutdownWindowSeconds": {
+          "type": "number",
+          "default": 120,
+          "minimum": 0,
+          "description": "Sessions interrupted within this many seconds of the last interruption count as killed by the same editor shutdown. Older ones were closed one by one and are not restored."
+        },
+        "claudeResurrect.terminalLocation": {
+          "type": "string",
+          "enum": [
+            "editor",
+            "panel"
+          ],
+          "default": "editor",
+          "description": "Where restored terminals open."
+        },
+        "claudeResurrect.reuseRestoredTerminals": {
+          "type": "boolean",
+          "default": true,
+          "description": "Resume a session inside the terminal tab the editor restored for it, when a tab with that name exists, instead of opening a new one next to it."
+        },
+        "claudeResurrect.compaction.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Compact the event log on startup when it is large and has been quiet. The log is append-only, so without compaction it grows with every session start and end."
+        },
+        "claudeResurrect.compaction.thresholdKb": {
+          "type": "number",
+          "default": 256,
+          "minimum": 1,
+          "description": "Compact only when the event log is larger than this many kilobytes."
+        },
+        "claudeResurrect.compaction.quietSeconds": {
+          "type": "number",
+          "default": 60,
+          "minimum": 0,
+          "description": "Compact only when nothing has been written to the log for this many seconds, so a session starting up at the same moment is never lost."
+        },
+        "claudeResurrect.compaction.keepInterruptedDays": {
+          "type": "number",
+          "default": 30,
+          "minimum": 1,
+          "description": "Interrupted sessions older than this many days are dropped during compaction."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "vscode:prepublish": "npm run build",
+    "package": "vsce package --no-dependencies"
+  },
+  "dependencies": {
+    "@claude-resurrect/core": "*"
+  }
+}

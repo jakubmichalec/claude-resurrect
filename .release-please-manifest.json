@@ -1,0 +1,5 @@
+{
+  "packages/core": "0.0.1",
+  "packages/vscode": "0.0.1",
+  "packages/zed": "0.0.1"
+}

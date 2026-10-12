@@ -1,0 +1,48 @@
+{
+  "name": "claude-resurrect-zed",
+  "version": "0.0.1",
+  "description": "Bring back interrupted Claude Code CLI sessions in Zed terminals after a restart.",
+  "license": "MIT",
+  "author": "Jakub Michalec <kuba.michalec@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jakubmichalec/claude-resurrect.git",
+    "directory": "packages/zed"
+  },
+  "bugs": {
+    "url": "https://github.com/jakubmichalec/claude-resurrect/issues"
+  },
+  "homepage": "https://github.com/jakubmichalec/claude-resurrect/tree/main/packages/zed#readme",
+  "keywords": [
+    "claude",
+    "claude code",
+    "zed",
+    "terminal",
+    "session",
+    "restore"
+  ],
+  "bin": {
+    "claude-resurrect-zed": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@claude-resurrect/core": "*"
+  }
+}

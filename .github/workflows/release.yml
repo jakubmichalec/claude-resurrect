@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    name: Release PR
+    runs-on: ubuntu-latest
+    outputs:
+      vscode_released: ${{ steps.release.outputs['packages/vscode--release_created'] }}
+      vscode_tag: ${{ steps.release.outputs['packages/vscode--tag_name'] }}
+      zed_released: ${{ steps.release.outputs['packages/zed--release_created'] }}
+      zed_tag: ${{ steps.release.outputs['packages/zed--tag_name'] }}
+    steps:
+      # A fine-grained PAT (Contents, Pull requests, Issues: read/write): the
+      # Release PR, the tag and the GitHub Release go through the Admin bypass
+      # of the rulesets, and a PAT-opened PR triggers the CI workflow.
+      - id: release
+        uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+  publish-vscode:
+    name: Publish the VS Code extension
+    needs: release-please
+    if: needs.release-please.outputs.vscode_released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      # Attach the vsix to the GitHub Release
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.vscode_tag }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Full quality gate before publishing
+      - run: npm run check
+
+      - run: npm run package
+
+      # Cursor, Windsurf and other forks install from Open VSX
+      - name: Publish to Open VSX
+        run: npx --no -- ovsx publish packages/vscode/*.vsix -p "$OVSX_TOKEN"
+        env:
+          OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
+
+      # VS Code itself installs from the Visual Studio Marketplace
+      - name: Publish to Visual Studio Marketplace
+        run: npx --no -- vsce publish --packagePath packages/vscode/*.vsix -p "$VSCE_PAT"
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Attach the vsix to the GitHub Release
+        run: gh release upload "$TAG_NAME" packages/vscode/*.vsix --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          TAG_NAME: ${{ needs.release-please.outputs.vscode_tag }}
+
+  publish-zed:
+    name: Publish the Zed package to npm
+    needs: release-please
+    if: needs.release-please.outputs.zed_released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # npm provenance attestation
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.zed_tag }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - run: npm ci
+
+      # Full quality gate before publishing
+      - run: npm run check
+
+      - run: npm publish --workspace packages/zed --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

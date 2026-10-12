@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+
+      # Squash merges use the PR title as the commit subject, which
+      # release-please parses for the version bump and the changelog
+      - name: PR title follows Conventional Commits
+        if: github.event_name == 'pull_request'
+        run: echo "$PR_TITLE" | npx --no -- commitlint
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+
+  build:
+    name: Build Extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run package
+
+      # The packaged extension from every CI run, for manual installs and
+      # for checking what a release would ship
+      - uses: actions/upload-artifact@v6
+        with:
+          name: vsix
+          path: packages/vscode/*.vsix
+          if-no-files-found: error
