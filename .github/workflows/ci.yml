@@ -68,7 +68,7 @@ jobs:
 
       # The packaged extension from every CI run, for manual installs and
       # for checking what a release would ship
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: vsix
           path: packages/vscode/*.vsix
