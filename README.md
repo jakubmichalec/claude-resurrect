@@ -39,7 +39,7 @@ npm install -g claude-resurrect-zed
 claude-resurrect-zed setup
 ```
 
-`setup` registers the Claude Code hooks, adds the task "Claude Resurrect: next session" to Zed, puts `eval "$(claude-resurrect-zed shell-init)"` in your shell startup file, and binds `cmd-shift-r` to the task in Zed's keymap. Every step keeps a backup and can be undone with `teardown`. From then on, tabs that Zed restores after a restart ask whether to resume their session, and the key opens a new tab with the next pending one.
+`setup` registers the Claude Code hooks, adds the task "Claude Resurrect: next session" to Zed, puts `eval "$(claude-resurrect-zed shell-init)"` in your shell startup file, and binds `cmd-shift-r` to the task in Zed's keymap. Every step keeps a backup and can be undone with `teardown`. From then on, tabs that Zed restores after a restart ask whether to resume their session, and the key opens a new tab with the next pending one. The shell snippet also acts in Supacode, which restores its tabs as plain shells the same way.
 
 Details, options and how sessions are chosen: [packages/zed/README.md](packages/zed/README.md).
 

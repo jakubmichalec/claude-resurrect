@@ -1,5 +1,6 @@
 // The snippet a user evaluates from their shell startup file. It runs only
-// in an interactive Zed terminal that is not already inside Claude Code.
+// in an interactive terminal of an editor that restores its tabs as plain
+// shells (Zed, Supacode) and that is not already inside Claude Code.
 //
 // zsh: just before the first prompt the CLI is asked (silently) what belongs
 // in the input line: the resume command when one session is pending (claimed
@@ -18,7 +19,14 @@ import type { Mode } from './mode';
 
 export const SKIP_VARIABLE = 'CLAUDE_RESURRECT_SKIP';
 
-const GUARD = `[ "$TERM_PROGRAM" = "zed" ] && [ -z "$CLAUDECODE" ] && [ -z "$${SKIP_VARIABLE}" ]`;
+// The TERM_PROGRAM values of the terminals the snippet acts in.
+export const TERMINAL_PROGRAMS = ['zed', 'supacode'] as const;
+
+const terminalGuard = TERMINAL_PROGRAMS.map((name) => `[ "$TERM_PROGRAM" = "${name}" ]`).join(
+  ' || ',
+);
+
+const GUARD = `{ ${terminalGuard}; } && [ -z "$CLAUDECODE" ] && [ -z "$${SKIP_VARIABLE}" ]`;
 
 const zshBranch = (mode: Mode, binary: string): readonly string[] => [
   '      __claude_resurrect_accept() {',

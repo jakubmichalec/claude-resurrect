@@ -19,10 +19,11 @@ const isValidIn = (shell: string, script: string): boolean => {
 };
 
 describe('shellSnippet', () => {
-  it('only acts in an interactive Zed terminal outside Claude', () => {
+  it('only acts in an interactive Zed or Supacode terminal outside Claude', () => {
     const snippet = shellSnippet('ask');
 
     expect(snippet).toContain('"$TERM_PROGRAM" = "zed"');
+    expect(snippet).toContain('"$TERM_PROGRAM" = "supacode"');
     expect(snippet).toContain('-z "$CLAUDECODE"');
     expect(snippet).toContain('-z "$CLAUDE_RESURRECT_SKIP"');
     expect(snippet).toContain('case "$-" in');
@@ -69,9 +70,12 @@ describe('shellSnippet', () => {
     expect(isValidIn('bash', shellSnippet('ask'))).toBe(true);
   });
 
-  it.each([{ shell: 'bash', args: ['--norc', '-i'] }])(
-    'runs the command the CLI prints before the first prompt in $shell',
-    ({ shell, args }) => {
+  it.each([
+    { shell: 'bash', args: ['--norc', '-i'], terminal: 'zed' },
+    { shell: 'bash', args: ['--norc', '-i'], terminal: 'supacode' },
+  ])(
+    'runs the command the CLI prints before the first prompt in $shell under $terminal',
+    ({ shell, args, terminal }) => {
       const fakeBinary = path.join(
         fs.mkdtempSync(path.join(os.tmpdir(), 'resurrect-bin-')),
         'fake',
@@ -81,7 +85,7 @@ describe('shellSnippet', () => {
       const result = spawnSync(shell, args, {
         encoding: 'utf8',
         input: `${shellSnippet('always', fakeBinary)}\nexit\n`,
-        env: { ...process.env, TERM_PROGRAM: 'zed', CLAUDECODE: '', CLAUDE_RESURRECT_SKIP: '' },
+        env: { ...process.env, TERM_PROGRAM: terminal, CLAUDECODE: '', CLAUDE_RESURRECT_SKIP: '' },
       });
 
       expect(result.stdout).toContain('resumed-always');

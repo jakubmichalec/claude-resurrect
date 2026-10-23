@@ -43,6 +43,8 @@ const runOptions = (
     XDG_CONFIG_HOME: path.join(box.root, 'xdg'),
     HOME: box.root,
     SHELL: '/bin/zsh',
+    // The suite may run inside Zed or Supacode; the guards must not notice.
+    TERM_PROGRAM: 'vitest',
   },
 });
 
@@ -288,7 +290,7 @@ describe('claude-resurrect-zed', () => {
     const result = run(box, 'doctor');
 
     expect(result.status, result.stderr).toBe(0);
-    expect(result.stdout).toContain('TERM_PROGRAM is zed:        no');
+    expect(result.stdout).toContain('terminal is Zed or Supacode: no');
     expect(result.stdout).toContain('Pending for this folder: 1');
     expect(result.stdout).toContain(SESSION_ID.slice(0, 8));
   });

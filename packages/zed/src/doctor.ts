@@ -12,6 +12,7 @@ import {
   stateDirectory,
 } from '@claude-resurrect/core';
 import type { RestoreCandidate, SessionRecord } from '@claude-resurrect/core';
+import { TERMINAL_PROGRAMS } from './shell-init';
 
 export interface DoctorInput {
   readonly cwd: string;
@@ -50,7 +51,7 @@ export const doctorReport = (input: DoctorInput): string => {
     'Claude Resurrect doctor',
     '',
     'Shell guards (all must be yes for the shell snippet to act)',
-    `  TERM_PROGRAM is zed:        ${yesNo(env.TERM_PROGRAM === 'zed')} (${env.TERM_PROGRAM ?? 'unset'})`,
+    `  terminal is Zed or Supacode: ${yesNo(TERMINAL_PROGRAMS.some((name) => name === env.TERM_PROGRAM))} (${env.TERM_PROGRAM ?? 'unset'})`,
     `  not inside Claude Code:     ${yesNo(!env.CLAUDECODE)}`,
     `  CLAUDE_RESURRECT_SKIP unset: ${yesNo(!env.CLAUDE_RESURRECT_SKIP)}`,
     `  stdin is a terminal:        ${yesNo(input.stdinIsTerminal)}`,
